@@ -1,4 +1,5 @@
 var https = require('https');
+var request = require('request');
 var fs = require('fs');
 var ca = fs.readFileSync('./cert/srca.cer.pem');
 var nodemailer = require('nodemailer');
@@ -55,12 +56,12 @@ fs.readFile('config.json','utf-8',function(err,data){
 		// console.log(data);
 		config = JSON.parse(data);
 	}
-	var rule = new schedule.RecurrenceRule();  
+	var rule = new schedule.RecurrenceRule();
 	rule.second = [0];
 	schedule.scheduleJob(rule, function(){
 		queryTickets(config);
         console.log('scheduleCronstyle:' + new Date());
-	}); 
+	});
 });
 /*
 * 爬取全国车站信息并生成JSON文件
@@ -94,7 +95,7 @@ function stationJson(){
 						pinyin:t[3],
 						suoxie:t[4],
 						other:t[5]
-					}
+					};
 				});
 				// console.log(stationMap["hefei"]);
 				fs.writeFile('station.json',JSON.stringify({stationName:stationArray,stationInfo:stationMap}));
@@ -115,12 +116,13 @@ var yz_temp = [],yw_temp = [];//保存余票状态
 */
 function queryTickets(config){
 
-	var options = { 
-	    hostname: 'kyfw.12306.cn',//12306
-	    path: '/otn/leftTicket/queryA?leftTicketDTO.train_date='+config.time+'&leftTicketDTO.from_station='+config.from_station.code+'&leftTicketDTO.to_station='+config.end_station.code+'&purpose_codes='+config.ticket_type,
+	var options = {
+	    uri: 'http://kyfw.12306.cn/otn/leftTicket/query?leftTicketDTO.train_date='+config.time+'&leftTicketDTO.from_station='+config.from_station.code+'&leftTicketDTO.to_station='+config.end_station.code+'&purpose_codes=ADULT',//12306
 	    ca:[ca]//证书
 	};
-	var req = https.get(options, function(res){ 
+	var req = request.get(options, function(error, response, body){
+    // console.log(body);
+    var res = response;
     var data = '';
     var transporter = nodemailer.createTransport({
 	    host: "smtp.163.com",//邮箱的服务器地址，如果你要换其他类型邮箱（如QQ）的话，你要去找他们对应的服务器，
@@ -131,11 +133,9 @@ function queryTickets(config){
 	        pass: config.mail_pass,//邮箱密码
 	    }
 	});
-    res.on('data',function(buff){
-    	data += buff;//查询结果（JSON格式）
-    }); 
-    res.on('end',function(){
-    	// console.log('res',data);
+
+    	data = body;//查询结果（JSON格式）
+
     	var jsonData;
     	try{
     	 	jsonData = JSON.parse(data).data;
@@ -143,7 +143,7 @@ function queryTickets(config){
     		console.log('JSON数据出错',e);
     		return;
     	}
-    	if(!jsonData||jsonData.length == 0){
+    	if (!jsonData || jsonData.length == 0) {
     		console.log('没有查询到余票信息');
     		return;
     	}
@@ -151,7 +151,7 @@ function queryTickets(config){
     	for(var i=0;i<jsonData.length;i++){
     		var cur = jsonData[i];
     		jsonMap[cur.queryLeftNewDTO.station_train_code] = cur.queryLeftNewDTO;
-    		
+
     	}
     	var train_arr = config.train_num;
     	for(var j = 0;j < train_arr.length;j++){
@@ -194,12 +194,9 @@ function queryTickets(config){
 			}
     	}
     	// fs.writeFile('./train.json',data);
-    })  
 });
 
 req.on('error', function(err){
     console.error(err.code);
 });
 }
-
-

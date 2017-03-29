@@ -16,6 +16,7 @@
     "commander": "^2.9.0",
     "iconv": "^2.2.1",
     "iconv-lite": "^0.4.15",
+    "request": "^2.81.0",
     "scanf": "^0.7.3"
   }
 }
