@@ -117,13 +117,7 @@ var yz_temp = [],yw_temp = [];//保存余票状态
 function queryTickets(config){
 
 	var options = {
-	    uri: 'http://kyfw.12306.cn/otn/leftTicket/query?leftTicketDTO.train_date='+config.time+'&leftTicketDTO.from_station='+config.from_station.code+'&leftTicketDTO.to_station='+config.end_station.code+'&purpose_codes=ADULT',//12306
-      headers: {
-        'User-Agent':'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/37.0.2062.124 Safari/537.36',
-        'Connection':'Keep-Alive',
-        'Accept-Language':'zh-CN,zh;q=0.8',
-        'Cache-Control':'max-age=0'
-      },
+	    uri: 'https://kyfw.12306.cn/otn/leftTicket/queryX?leftTicketDTO.train_date='+ config.time +'&leftTicketDTO.from_station='+ config.from_station.code +'&leftTicketDTO.to_station='+ config.end_station.code +'&purpose_codes='+config.ticket_type,//12306
 	    ca:[ca]//证书
 	};
 	var req = request.get(options, function(error, response, body){
