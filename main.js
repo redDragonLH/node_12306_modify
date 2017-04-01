@@ -57,7 +57,7 @@ fs.readFile('config.json','utf-8',function(err,data){
 		config = JSON.parse(data);
 	}
 	var rule = new schedule.RecurrenceRule();
-	rule.second = [0];
+	rule.second = [0,20,40];
 	schedule.scheduleJob(rule, function(){
 		queryTickets(config);
         console.log('scheduleCronstyle:' + new Date());
