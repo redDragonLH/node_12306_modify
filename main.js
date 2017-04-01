@@ -60,7 +60,7 @@ fs.readFile('config.json','utf-8',function(err,data){
 	rule.second = [0,20,40];
 	schedule.scheduleJob(rule, function(){
 		queryTickets(config);
-        console.log('scheduleCronstyle:' + new Date());
+        console.log('时间:' + new Date());
 	});
 });
 /*
